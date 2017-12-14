@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ object.nome }}{% endblock %}
+
+{% block css %}
+<style type="text/css" media="screen">
+    .glyphicon-refresh-animate {
+        -animation: spin .7s infinite linear;
+        -ms-animation: spin .7s infinite linear;
+        -webkit-animation: spinw .7s infinite linear;
+        -moz-animation: spinm .7s infinite linear;
+    }
+
+    @keyframes spin {
+        from { transform: scale(1) rotate(0deg);}
+        to { transform: scale(1) rotate(360deg);}
+    }
+
+    @-webkit-keyframes spinw {
+        from { -webkit-transform: rotate(0deg);}
+        to { -webkit-transform: rotate(360deg);}
+    }
+
+    @-moz-keyframes spinm {
+        from { -moz-transform: rotate(0deg);}
+        to { -moz-transform: rotate(360deg);}
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+    <fieldset class="home-legend">
+        <legend>{{ object.nome }}</legend>
+        <h2>Candidaturas</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center">Ano</th>
+                    <th class="text-center">Cargo</th>
+                    <th class="text-center">Localidade</th>
+                    <th class="text-center">Partido</th>
+                    <th class="text-center">Resultado</th>
+                    <th class="text-center">Detalhes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidatura in object.candidatura_set.all %}
+                <tr>
+                    <td>{{ candidatura.ano }}</td>
+                    <td>{{ candidatura.get_cargo_display }}</td>
+                    <td>{{ candidatura.get_ue }}</td>
+                    <td>{{ candidatura.partido }}</td>
+                    <td>{{ candidatura.resultado }}</td>
+                    <td><button type="button" class="link-detail btn btn-primary" data-id="{{ candidatura.pk }}" data-href="{{ candidatura.get_absolute_url }}" data-loading-text="Carregando...">Detalhes</button>
+                </td>
+                </tr>
+                <tr><td class="detail-{{ candidatura.pk }}" colspan="6"></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </fieldset>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $('.link-detail').click(function(){
+        var $this = $(this);
+        $this.button('loading');
+
+        var url = $this.attr('data-href');
+        $.get(url, function(data) {
+            var id = $this.attr('data-id');
+            $('.detail-'+id).html(data);
+            $this.button('reset');
+        });
+        return false;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+__pycache__
+.sass-cache/
+.idea/
+.DS_Store
+*.pyc
+*.swp
+*.sqlite3
+*.fuse_hidden*
+*.vscode
+politlab/media/*
+politlab/static/*
+politlab/cache/*
+politlab/settings/local.py
+politlab/settings/production.py
+fabfile.py

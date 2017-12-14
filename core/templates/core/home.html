@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block main %}
+    <fieldset class="home-legend">
+        <legend>Consulta</legend>
+
+        <img src="{% static 'core/imgs/ico-politico.png' %}">
+        <a href="{% url 'eleicoes_busca' %}"><img src="{% static 'core/imgs/ico-eleicao.png' %}"></a>
+
+        <form class="form-inline" action="{% url 'candidatos_busca' %}" method="GET">
+          <div class="form-group">
+            <input type="text" class="form-control" name="q" placeholder="Digite o nome ou parte do nome do candidato">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+    </fieldset>
+{% endblock %}

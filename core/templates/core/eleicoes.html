@@ -1,0 +1,219 @@
+{% extends "core/base.html" %}
+{% load static humanize %}
+
+{% block title %}Busca por Eleições{% endblock %}
+
+
+{% block main %}
+    <fieldset class="home-legend">
+        <legend>Busca por Eleições</legend>
+
+        <br>
+        <br>
+        <form action="" method="GET" accept-charset="utf-8">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="inputAno" class="col-sm-2 control-label">Ano</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" name="ano" id="inputAno">
+                            <option value="">------</option>
+                            {% for ano, cargos in ANO_CARGOS %}
+                            <option value="{{ ano }}" {% if ano|intcomma == request.GET.ano|intcomma %}selected{% endif %}>{{ ano }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="form-group">
+                    <label for="inputCargo" class="col-sm-2 control-label">Cargo</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" name="cargo" id="inputCargo">
+                            <option class="default" value="">------</option>
+                            {% for ano, cargos in ANO_CARGOS %}
+                            {% for cargo, display in cargos %}
+                                <option data-ano="{{ ano }}" value="{{ cargo }}" {% if ano|intcomma == request.GET.ano|intcomma and cargo|intcomma == request.GET.cargo|intcomma %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-14">
+                        <button type="submit" name="type" value="geral" class="btn btn-primary" data-loading-text="Carregando...">Estatística Geral</button>
+                        <button type="submit" name="type" value="partidos" class="btn btn-primary" data-loading-text="Carregando...">Votos por Partido</button>
+                        <button type="submit" name="type" value="campanhas" class="btn btn-primary" data-loading-text="Carregando...">Campanhas mais caras</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+            {% if type == 'geral' %}
+            <div class="col-md-12">
+                <br>
+                <br>
+                <h2>Estatística Geral</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Resumo Geral</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Votos Aptos:</td>
+                            <td>{{ votos_aptos|intcomma }}</td>
+                            <td>100,0</td>
+                        </tr>
+                        <tr>
+                            <td>Votos Válidos:</td>
+                            <td>{{ votos_validos|intcomma }}</td>
+                            <td>{{ perc_validos|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Votos Nominais:</td>
+                            <td>{{ votos_nominais|intcomma }}</td>
+                            <td>{{ perc_nominais|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Votos dos Eleitos:</td>
+                            <td>{{ votos_eleitos|intcomma }}</td>
+                            <td>{{ perc_eleitos|intcomma }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Eleitos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Número de Candidatos</td>
+                            <td>{{ candidatos|intcomma }}</td>
+                            <td>{{ candidatos_eleitos|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Número de Partidos</td>
+                            <td>{{ partidos|intcomma }}</td>
+                            <td>{{ partidos_eleitos|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Novos Candidatos</td>
+                            <td>{{ novos|intcomma }}</td>
+                            <td>{{ novos_eleitos|intcomma }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            {% if type == 'partidos' %}
+            <div class="col-md-12">
+                <br>
+                <br>
+                <h2>Votos por Partido</h2>
+                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                <script type="text/javascript">
+                  google.charts.load('current', {'packages':['corechart']});
+                  google.charts.setOnLoadCallback(drawChart);
+
+                  function drawChart() {
+
+                    var data = google.visualization.arrayToDataTable([
+                      ['Partido', 'Votos'],
+                      {% for votacao in votacoes %}
+                      ['{{ votacao.partido }}', {{ votacao.num_votos }}],
+                      {% endfor %}
+                    ]);
+                    var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                    chart.draw(data);
+                  }
+                </script>
+                <div id="piechart" style="width: 100%; height: 500px;"></div>
+            </div>
+            {% endif %}
+            {% if type == 'campanhas' %}
+            <div class="col-md-12">
+                <br>
+                <br>
+                <h2>Campanhas mais caras</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Nome / Nome na Urna</th>
+                            <th class="text-center">Região</th>
+                            <th class="text-center">Partido</th>
+                            <th class="text-center">Total gasto (R$)</th>
+                            <th class="text-center">Custo do voto (R$)</th>
+                            <th class="text-center">Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidatura in candidaturas %}
+                        <tr>
+                            <td>{{ candidatura.candidato }}</td>
+                            <td>{{ candidatura.regiao }}</td>
+                            <td>{{ candidatura.partido }}</td>
+                            <td>{{ candidatura.total_gasto|intcomma }}</td>
+                            <td>{{ candidatura.custo_do_voto|intcomma }}</td>
+                            <td>{{ candidatura.resultado }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </form>
+    </fieldset>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    if($('#inputAno').val() == '' || $('#inputCargo').val() == ''){
+        $('button[name="type"]').attr('disabled', 'disabled');
+    }
+
+    $('#inputCargo option').hide();
+    if($('#inputAno').val() != ''){
+        $('#inputCargo option[data-ano='+$('#inputAno').val()+']').show();
+    }
+
+    $('#inputAno').change(function(){
+        $this = $(this);
+
+        $('#inputCargo option').hide();
+        $('#inputCargo option.default').show();
+        $('#inputCargo option.default').attr('selected', 'selected');
+        $('#inputCargo option').removeAttr('selected');
+        if($this.val() != ''){
+            $('#inputCargo option[data-ano='+$this.val()+']').show();
+        }
+        if($('#inputAno').val() != '' && $('#inputCargo').val() != ''){
+            $('button[name="type"]').removeAttr('disabled');
+        }else{
+            $('button[name="type"]').attr('disabled', 'disabled');
+        }
+    });
+
+    $('#inputCargo').change(function(){
+        if($('#inputAno').val() != '' && $('#inputCargo').val() != ''){
+            $('button[name="type"]').removeAttr('disabled');
+        }else{
+            $('button[name="type"]').attr('disabled', 'disabled');
+        }
+    });
+
+    $('.btn').click(function(){
+        var $this = $(this);
+        $this.button('loading');
+    });
+</script>
+{% endblock %}

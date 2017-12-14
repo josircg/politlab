@@ -1,0 +1,45 @@
+{% extends "admin:admin/base.html" %}
+{% load theming_tags i18n static %}
+
+{% block blockbots %}
+    {{ block.super }}
+    {# Using blockbots ensures theming css comes after any form media and other css #}
+    {% render_theming_css %}
+    <style type="text/css" media="screen">
+        #header {
+            background: #5D7EEC;
+        }
+        div.breadcrumbs, div.breadcrumbs a {
+            background: #F5F5F5;
+            color: #555;
+        }
+        #header #branding h1 {
+            background: none;
+            text-indent: 0;
+            color: #FFF;
+            width: auto;
+        }
+        #branding h1, #branding h1 a:link, #branding h1 a:visited {
+            color: #FFF;
+        }
+        .button, input[type=submit], input[type=button], .submit-row input, a.button, .button:active, input[type=submit]:active, input[type=button]:active, .button:focus, input[type=submit]:focus, input[type=button]:focus, .button:hover, input[type=submit]:hover, input[type=button]:hover {
+            background: #5D7EEC;
+        }
+        #header ul#navigation-menu li.first a {
+            background: none;
+        }
+        .changelink, #user-tools {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+
+{% block userlinks %}
+    {% if user.is_superuser %}
+        {% if user.has_usable_password %}
+        <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+        {% endif %}
+        <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+    {% endif %}
+{% endblock %}

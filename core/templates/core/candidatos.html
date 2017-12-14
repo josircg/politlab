@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% load static humanize %}
+
+{% block title %}Buscando por: {{ q }}{% endblock %}
+
+
+{% block main %}
+    <fieldset class="home-legend">
+        <legend>Buscando por: {{ q }}</legend>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center" rowspan="2">Nome / Nome na Urna</th>
+                    <th class="text-center" colspan="3">Última Candidatura</th>
+                </tr>
+                <tr>
+                    <th class="text-center">Ano</th>
+                    <th class="text-center">Cargo</th>
+                    <th class="text-center">Região</th>
+                    <th class="text-center">Partido</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidato in candidatos %}
+                <tr>
+                    <td><a href="{{ candidato.get_absolute_url }}">{{ candidato.nome }} ({{ candidato.nome_publico }})</a></td>
+                    {% with ultima_candidatura=candidato.ultima_candidatura %}
+                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.ano }}{% else %} - {% endif %}</td>
+                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.get_cargo_display }}{% else %} - {% endif %}</td>
+                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.get_ue }}{% else %} - {% endif %}</td>
+                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.partido }}{% else %} - {% endif %}</td>
+                    {% endwith %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </fieldset>
+{% endblock %}

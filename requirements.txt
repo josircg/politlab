@@ -1,0 +1,15 @@
+# Django
+django<1.12
+requests==2.18.4
+django-admin-tools==0.8.1
+
+# Deploy
+pymysql
+mysqlclient
+gunicorn
+
+# Images
+pillow==4.1.1
+
+# BI
+pandas==0.21.0
