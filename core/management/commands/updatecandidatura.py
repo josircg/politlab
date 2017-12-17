@@ -17,7 +17,7 @@ class Command(BaseCommand):
         for cand in Candidatura.objects.filter(cargo__in=(13,)):
             total = Doacao.objects.filter(candidatura = cand).aggregate(total=models.Sum('valor_at')).get('total')
             cand.total_gasto = total or 0
-            cand.primeira = Candidatura.objects.filter(candidato=cand.candidato, ano__lt=cand.ano).exists()
+            cand.primeira = not Candidatura.objects.filter(candidato=cand.candidato, ano__lt=cand.ano).exists()
             cand.save()
             count += 1
             if (count % 1000) == 0:

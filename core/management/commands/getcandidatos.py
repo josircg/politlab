@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import IntegrityError
 
-from core.models import Candidato, Candidatura, NomePublico, Partido, Coligacao
+from core.models import Candidato, Candidatura, NomePublico, Partido, Coligacao, UE
 from core.choices import *
 
 import pandas as pd
@@ -244,6 +244,7 @@ class Command(BaseCommand):
                         except:
                             print('Linha %d: %s' % (count, cand))
                     else:
+                        ue = UE.objects.get(agreg_regiao=agreg_regiao, regiao=str(data['SIGLA_UE']))
                         try:
                             Candidatura(
                                 candidato=cand,
@@ -251,8 +252,7 @@ class Command(BaseCommand):
                                 cargo=cargo,
                                 partido=partido,
                                 coligacao=coligacao,
-                                agreg_regiao=agreg_regiao,
-                                regiao=str(data['SIGLA_UE']),
+                                UE = ue,
                                 numero = numero,
                                 resultado=data['DESC_SIT_TOT_TURNO'],
                                 total_gasto = 0

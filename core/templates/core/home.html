@@ -11,8 +11,18 @@
         <form class="form-inline" action="{% url 'candidatos_busca' %}" method="GET">
           <div class="form-group">
             <input type="text" class="form-control" name="q" placeholder="Digite o nome ou parte do nome do candidato">
-            <button type="submit" class="btn btn-primary">Buscar</button>
+            <button type="submit" class="btn btn-primary" data-loading-text="Carregando...">Buscar</button>
           </div>
         </form>
     </fieldset>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    $('.btn').click(function(){
+        var $this = $(this);
+        $this.button('loading');
+    });
+</script>
 {% endblock %}

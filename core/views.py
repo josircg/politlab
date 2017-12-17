@@ -27,9 +27,9 @@ class BuscaCandidatosView(TemplateView):
         context = super(BuscaCandidatosView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
         if q:
-            nomespublicos = NomePublico.objects.filter(Q(nome__icontains=q) | Q(pessoa__nome__icontains=q)).select_related(
+            nomespublicos = NomePublico.objects.filter(nome__icontains=q).select_related(
                 'pessoa'
-            ).distinct()
+            )
             # Atualiza num_acessos
             nomespublicos.update(num_acessos=F('num_acessos')+1)
             context['q'] = q
@@ -97,7 +97,10 @@ class BuscaEleicoesView(FormView):
                 # Calcula Estatística Global da Eleição
                 url = 'http://cepesp.io/api/consulta/tse?cargo=%s&ano=%s&agregacao_regional=0&agregacao_politica=4&format=datatable' % (cargo, ano)
 
-                data_json = requests.get(url).json().get('data')
+                try: data_json = requests.get(url).json().get('data')
+                except:
+                    context['error_message'] = u'Falha de comunicação com o CEPESPData'
+                    data_json = []
                 if type(data_json) == list:
                     for data in data_json:
                         if data.get('NUM_TURNO') == '1':
@@ -106,7 +109,10 @@ class BuscaEleicoesView(FormView):
                             context['votos_nominais'] += data.get('QT_VOTOS_NOMINAIS') + data.get('QT_VOTOS_LEGENDA')
 
                 url = u'http://cepesp.io/api/consulta/tse?ano=%s&cargo=%s&agregacao_regional=0&agregacao_politica=2&columns[0][name]=DESC_SIT_TOT_TURNO&columns[0][search][value]=ELEITO&selected_columns[]=DESC_SIT_TOT_TURNO&selected_columns[]=QTDE_VOTOS&format=datatable' % (ano, cargo)
-                data_json = requests.get(url).json().get('data')
+                try: data_json = requests.get(url).json().get('data')
+                except:
+                    data_json = []
+                    context['error_message'] = u'Falha de comunicação com o CEPESPData'
 
                 context['votos_eleitos'] = 0
                 for data in data_json:

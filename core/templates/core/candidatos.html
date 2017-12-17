@@ -28,7 +28,7 @@
                     {% with ultima_candidatura=candidato.ultima_candidatura %}
                         <td>{% if ultima_candidatura %}{{ ultima_candidatura.ano }}{% else %} - {% endif %}</td>
                         <td>{% if ultima_candidatura %}{{ ultima_candidatura.get_cargo_display }}{% else %} - {% endif %}</td>
-                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.get_ue }}{% else %} - {% endif %}</td>
+                        <td>{% if ultima_candidatura %}{{ ultima_candidatura.UE }}{% else %} - {% endif %}</td>
                         <td>{% if ultima_candidatura %}{{ ultima_candidatura.partido }}{% else %} - {% endif %}</td>
                     {% endwith %}
                 </tr>

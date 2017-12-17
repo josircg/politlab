@@ -11,9 +11,9 @@
     </thead>
     <tbody>
         <tr>
-            <td>{{ object.get_num_votos|intcomma }} ({{ object.percentual_num_votos_eleicao_para_cargo|floatformat|intcomma }}%)</td>
+            <td>{{ object.get_num_votos|intcomma }} ({{ object.percentual_num_votos_eleicao_para_cargo|intcomma }}%)</td>
             <td>{{ object.num_votos_partido|intcomma }}</td>
-            <td>{{ object.media_num_votos_partido|floatformat|intcomma }}</td>
+            <td>{{ object.media_num_votos_partido|intcomma }}</td>
             <td>{{ object.num_votos_eleicao_para_cargo|intcomma }}</td>
         </tr>
     </tbody>

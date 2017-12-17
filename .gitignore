@@ -10,6 +10,5 @@ __pycache__
 politlab/media/*
 politlab/static/*
 politlab/cache/*
-politlab/settings/local.py
 politlab/settings/production.py
 fabfile.py

@@ -1,4 +1,4 @@
-#Laboratório de análise histórica e estatística sobre política partidária
+# Laboratório de análise histórica e estatística sobre política partidária
 
 Software que servirá de laboratório para análise do histórico de votações de um determinado candidato e a formulação de variáveis e índices estatísticos que possam auxiliar pesquisadores e jornalistas a entender melhor características que não são aparentes nos dados brutos eleitorais.
 
@@ -8,11 +8,11 @@ A ferramenta faz parte do projeto [FARMi](http://www.farmi.pro.br/sobre) do IBIC
 
 Também é possível fazer o download da base de dados
 
-##Interface Visual:
+## Interface Visual:
 
 A ferramenta inicialmente terá 3 tipos de consultas para o usuário final: Por Político e por Eleição
 
-###1) Por político:
+### 1) Por político:
 
 Permitirá a busca pelo nome do político (com direito a desambiguação, mostrando os políticos que tenham mesmo nome, o Estado onde ele concorreu e utilizando o nome utilizado por ele na eleição). 
 
@@ -32,11 +32,11 @@ Médias:
 
 Análise Geográfica:
 - Capilaridade: Percentual de Zonas em que recebeu votos (em relação ao total do Estado/Municipio)
-- Currularidade: Indicação de que o político detém "currais" eleitorais em determinadas zonas ou municípios. O sistema deverá também fornecer um popup que mostre as zonas eleitorais onde o fenômeno ocorre)
+- Curralidade: Indicação de que o político detém "currais" eleitorais em determinadas zonas ou municípios. O sistema deverá também fornecer um popup que mostre as zonas eleitorais onde o fenômeno ocorre)
 
 Serão considerados currais eleitorais as seções em que o número de votos do candidato for 30% maior que o total dos votos da referida seção
 
-###2) Por Eleição: Lista os resultados de uma determinada eleição
+### 2) Por Eleição: Lista os resultados de uma determinada eleição
 
 *Busca inicial*: Ano / Cargo / Estado
 
@@ -46,7 +46,7 @@ Também irá mostrar os candidados mais votados com as seguintes colunas: Nome /
 
 Para calcular o custo do voto, iremos incorporar a base de Financiamento de Campanha do TSE.
 
-###3) Dashboard
+### 3) Dashboard
 
 Mostra os registros individuais da base de dados. Nesse ambiente é possível realizar consultas e filtros mais detalhados.  
 
@@ -70,3 +70,19 @@ Os dados do CEPESP são utilizados em 2 momentos:
 Detalhes:
 - A base de Financiamento de Campanhas deste repositório só contém dados de 2002 em diante.
 - Muitas doações para candidatos a vereador e prefeito não foram associadas ao candidato pois não havia a informação de CPF para o candidato.  
+
+## Instalação:
+
+git pull
+pip install -r requirements.txt
+
+
+## Próximos passos
+
+- Melhorar performance na busca por nome
+- Implementar Totais de Votacoes por Estado e Municipio por Partido
+- Calcular totais por municipio para calcular a Capiladidade e Curralidade
+- Agregar os dados PEP (Pessoas Politicamente Expostas) 
+- Agregar os dados dos filiados e associar às doações de campanha
+- Agregar dados das bancadas BBB
+

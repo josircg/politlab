@@ -21,7 +21,12 @@ class Command(BaseCommand):
             with open(filepath, 'wb') as outfile:
                 outfile.write(content)
 
-        print('Iniciando importação')
+        print('Iniciando importação das Unidades Espaciais')
+
+        UE(sigla='BR', agreg_regiao=AGR_REGIONAL.BRASIL, descricao='Brasil', UF='BR').save()
+        UE(sigla='ZZ', agreg_regiao=AGR_REGIONAL.UF, descricao='Exterior', UF='ZZ').save()
+
+        # Monta os estados e os municipios
         for agreg_regiao, ano, cargo in ((AGR_REGIONAL.UF, 2014, 3), (AGR_REGIONAL.MUNICIPIO, 2016, 11)):
 
             url = 'http://cepesp.io/api/consulta/votos?cargo=%s&ano=%s&agregacao_regional=%s&agregacao_politica=4&format=gzip' % (cargo, ano, agreg_regiao)

@@ -80,7 +80,7 @@ class CandidatoAdmin(ReadOnlyAdmin):
 
 @admin.register(Candidatura)
 class CandidaturaAdmin(ReadOnlyAdmin):
-    list_display = ('ano', 'cargo', 'candidato', 'get_ue', 'numero', 'resultado',  )
+    list_display = ('ano', 'cargo', 'candidato', 'UE', 'numero', 'resultado',  )
     list_filter = ('ano', 'cargo', 'partido', )
     search_fields = ('candidato__nome', 'numero' )
 
@@ -88,7 +88,7 @@ class CandidaturaAdmin(ReadOnlyAdmin):
         if obj:
             return ('candidato', 'ano', 'cargo', 'agreg_regiao', \
                 'regiao', 'numero', 'partido', 'coligacao', 'num_votos', \
-                'resultado', 'get_ue', 'primeira', 'total_gasto')
+                'resultado', 'UE', 'primeira', 'total_gasto')
         return ()
 
 @admin.register(NomePublico)

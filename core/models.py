@@ -47,12 +47,11 @@ class Candidato(Pessoa):
     class Meta:
         ordering = ['cpf']
 
-
 class NomePublico(models.Model):
     class Meta:
         verbose_name = u'Nome Público'
         verbose_name_plural = u'Nomes Públicos'
-        unique_together = (('pessoa', 'nome', ), )
+        unique_together = (('nome', 'pessoa'), )
 
     pessoa = models.ForeignKey(Pessoa)
     nome = models.CharField(max_length=100)
@@ -99,7 +98,10 @@ class UE(models.Model):
     UF = models.CharField(max_length=2)
 
     def __str__(self):
-        return u'%s/%s' % (self.UF, self.descricao)
+        if self.agreg_regiao == choices.AGR_REGIONAL.MUNICIPIO:
+            return u'%s/%s' % (self.descricao, self.UF)
+        else:
+            return u'%s' % self.descricao
 
 
 class Candidatura(models.Model):
@@ -120,20 +122,7 @@ class Candidatura(models.Model):
     resultado = models.CharField(max_length=100)
     primeira = models.NullBooleanField(default=False)
     total_gasto = models.DecimalField(max_digits=12, decimal_places=2)
-
-    def get_ue(self):
-        if self.agreg_regiao == choices.AGR_REGIONAL.MUNICIPIO:
-            if not self.UE:
-                sigla = self.regiao
-                if len(sigla) == 2:
-                    return UE.objects.get(sigla=sigla)
-                for i in range(5-len(sigla)):
-                    sigla = u'0%s' % sigla
-                self.UE = UE.objects.get(sigla=sigla)
-                self.save()
-            return self.UE
-        else:
-            return self.regiao
+    eleito = models.NullBooleanField(null=True)
 
     def get_num_votos(self):
         if self.num_votos is None:
@@ -141,7 +130,7 @@ class Candidatura(models.Model):
                 url = 'http://cepesp.io/api/consulta/votos?columns[0][name]=NUMERO_CANDIDATO&columns[0][search][value]=%s' \
                     '&columns[1][name]=SIGLA_UE&columns[1][search][value]=%s&format=datatable&selected_columns[]=NUMERO_CANDIDATO' \
                     '&selected_columns[]=QTDE_VOTOS&selected_columns[]=SIGLA_UE&cargo=%s&anos[]=%s&agregacao_regional=%s' % (
-                    self.numero, self.regiao, self.cargo, self.ano, self.agreg_regiao
+                    self.numero, self.regiao, self.cargo, self.ano, self.UE.agreg_regiao
                 )
                 self.num_votos = requests.get(url).json().get('data', [])[0].get('QTDE_VOTOS')
                 self.save()
@@ -149,23 +138,23 @@ class Candidatura(models.Model):
         return self.num_votos
 
     def num_votos_partido(self):
-        return Votacao.objects.filter(ano=self.ano, cargo=self.cargo, partido=self.partido).aggregate(num_votos=models.Sum('num_votos')).get('num_votos') or 0
+        return Votacao.objects.filter(ano=self.ano, cargo=self.cargo, turno ='1', partido=self.partido).aggregate(num_votos=models.Sum('num_votos')).get('num_votos') or 0
 
     def num_candidatos_partido(self):
-        return Candidatura.objects.filter(ano=self.ano, cargo=self.cargo, partido=self.partido).count()
+        return Candidatura.objects.filter(ano=self.ano, cargo=self.cargo, partido=self.partido, turno='1').count()
 
     def media_num_votos_partido(self):
         try:
-            return float(self.num_votos_partido()) /float(self.num_candidatos_partido())
+            return round(float(self.num_votos_partido()) /float(self.num_candidatos_partido()), )
         except:
             return 0.0
 
     def num_votos_eleicao_para_cargo(self):
-        return Votacao.objects.filter(ano=self.ano, cargo=self.cargo).aggregate(num_votos=models.Sum('num_votos')).get('num_votos') or 0
+        return Votacao.objects.filter(ano=self.ano, cargo=self.cargo, turno='1').aggregate(num_votos=models.Sum('num_votos')).get('num_votos') or 0
 
     def percentual_num_votos_eleicao_para_cargo(self):
         try:
-            return (float(self.num_votos)/float(self.num_votos_eleicao_para_cargo()))*100
+            return round(((float(self.num_votos)/float(self.num_votos_eleicao_para_cargo()))*100), 2)
         except:
             return 0.0
 
@@ -186,6 +175,7 @@ class Votacao(models.Model):
     cargo = models.PositiveSmallIntegerField(choices=choices.CARGO_CHOICES)
     turno = models.CharField(max_length=1)
     partido = models.ForeignKey(Partido, null=True)
+    UE = models.ForeignKey(UE, null=True)
     num_votos = models.BigIntegerField(u'Núm.Votos', default = 0)
     media = models.BigIntegerField(u'Média de Votos', null=True)
 
