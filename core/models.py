@@ -18,13 +18,14 @@ from decimal import Decimal
 
 from core import choices
 
+
 class Pessoa(models.Model):
     cpf = models.CharField(max_length=11, primary_key=True)
     nome = models.CharField(max_length=100, db_index=True)
     sexo = models.CharField(choices=choices.SEXO, max_length=1)
 
     def __str__(self):
-        return u'%s' % (self.nome)
+        return u'%s' % self.nome
 
 
 class Candidato(Pessoa):
@@ -46,6 +47,7 @@ class Candidato(Pessoa):
 
     class Meta:
         ordering = ['cpf']
+
 
 class NomePublico(models.Model):
     class Meta:
@@ -187,6 +189,7 @@ class Votacao(models.Model):
     def __str__(self):
         return u'%s (%s) %s (%s turno)' % (self.ano, self.cargo, self.partido, self.turno)
 
+
 class SetorEconomico(models.Model):
     descricao = models.CharField(u'Descrição', max_length=255)
 
@@ -196,6 +199,7 @@ class SetorEconomico(models.Model):
 
     def __str__(self):
         return u'%s' % self.descricao
+
 
 class Doador(models.Model):
     cpf = models.CharField(max_length=11, blank=True, null=True, db_index=True)
@@ -210,6 +214,7 @@ class Doador(models.Model):
 
     def __str__(self):
         return u'%s' % self.nome
+
 
 class Doacao(models.Model):
     candidatura = models.ForeignKey(Candidatura)

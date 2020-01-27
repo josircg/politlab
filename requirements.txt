@@ -1,6 +1,6 @@
 # Django
 django<1.12
-requests==2.18.4
+requests
 django-admin-tools==0.8.1
 
 # Deploy
@@ -12,4 +12,4 @@ gunicorn
 pillow==4.1.1
 
 # BI
-pandas==0.21.0
+pandas

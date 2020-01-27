@@ -1,12 +1,16 @@
 __pycache__
 .sass-cache/
 .idea/
+/.ipynb_checkpoints/
 .DS_Store
 *.pyc
 *.swp
 *.sqlite3
 *.fuse_hidden*
 *.vscode
+data/*
+socios
+evangelicos
 politlab/media/*
 politlab/static/*
 politlab/cache/*
