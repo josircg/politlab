@@ -24,13 +24,18 @@ SELECT
 FROM igrejas;
 
 update igrejas_temp as T
-   set nome = (select distinct nome from igrejas where cnpj = t.cnpj)
+   set nome = (select distinct nome from igrejas where cnpj = t.cnpj);
 
 DROP TABLE igrejas;
 
 ALTER TABLE igrejas_temp RENAME TO igrejas;
 
 create unique index pk_igrejas on igrejas (cnpj);
+
+-- excluindo as Funerárias que a rotina não pegou...
+SELECT * from igrejas where nome like '%FUNERA%';
+DELETE from igrejas where nome like '%FUNERA%';
+-- 103 registros excluídos
 
 -- verificar se todas as igrejas estão na base de socios
 select * from igrejas as i
@@ -52,7 +57,7 @@ select cnpj from socio where cnpj_cpf_do_socio = '***828616**');
 -- não. ele é sócio de todas as empresas
 select * from igrejas
 where nome = 'IGREJA DO EVANGELHO QUADRANGULAR'
-  and cnpj not in (select cnpj from socio where cnpj_cpf_do_socio = '***828616**')
+  and cnpj not in (select cnpj from socio where cnpj_cpf_do_socio = '***828616**');
 
 drop table doacao;
 
@@ -106,11 +111,11 @@ alter table doador owner to farmi;
 alter table doador_cnpj owner to farmi;
 
 select distinct cd_origem_receita, ds_origem_receita from doacao2018
- where cd_origem_receita is not null
+ where cd_origem_receita is not null;
 
 select * from doacao2018
  where length(nr_cpf_cnpj_doador) = 11
-   and trim(nm_doador) <> nm_doador_rfb
+   and trim(nm_doador) <> nm_doador_rfb;
 
 update doacao2018 set nr_cpf_cnpj_doador = null where nr_cpf_cnpj_doador = '-1';
 update doacao2018 set sg_uf_doador = null where sg_uf_doador = '#NULO#';
@@ -128,24 +133,85 @@ insert into doador
     from doacao2018
    where length(nr_cpf_cnpj_doador) = 11
 
-update doador set cpf_obf = concat('***',substr(cpf,4,6),'**');
+update doador set cpf_obf = concat('***',substr(cpf,4,6),'**')
 
-select * from socio;
+select * from socio
 
-select count(*) from doacao2018;
-select count(*) from doador;
+select count(*) from doacao2018
+select count(*) from doador
 
 select sum(vr_receita) from doador d, doacao r
  where d.cpf = r.nr_cpf_cnpj_doador
-   and r.nr_cpf_cnpj_doador = r.nr_cpf_candidato;
+   and r.nr_cpf_cnpj_doador = r.nr_cpf_candidato
 
+-- total geral
 select sum(vr_receita) from igrejas i, socio s, doador d, doacao r
 where i.cnpj = s.cnpj
   and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
   and d.cpf = r.nr_cpf_cnpj_doador;
 
-select sum(vr_receita) from igrejas i, socio s, doador d, doacao r
+-- total de representantes legais
+-- 134.272
+select count(*) from igrejas i , socio s
+ where i.cnpj = s.cnpj;
+
+-- pastores que realizaram doações
+-- 820
+select count(*) from igrejas i , socio s, doador d
+ where i.cnpj = s.cnpj
+   and d.cpf_obf = s.cnpj_cpf_do_socio and d.nome = s.nome_socio;
+
+select count(*) from igrejas i , socio s, doador d
+ where i.cnpj = s.cnpj
+   and d.cpf_obf = s.cnpj_cpf_do_socio and d.nome = s.nome_socio
+   and exists (select * from doacoes r where r.nr_cpf_cnpj_doador = d.cpf);
+
+-- Total onde o próprio candidato é o doador
+select count(*), sum(vr_receita) from igrejas i, socio s, doador d, doacao r
 where i.cnpj = s.cnpj
   and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
   and d.cpf = r.nr_cpf_cnpj_doador
   and r.nr_cpf_cnpj_doador = r.nr_cpf_candidato;
+
+-- Total por Partido
+select r.sg_partido, sum(vr_receita) from igrejas i, socio s, doador d, doacao r
+where i.cnpj = s.cnpj
+  and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
+  and d.cpf = r.nr_cpf_cnpj_doador
+group by r.sg_partido;
+
+select r.sg_uf, sum(vr_receita) from igrejas i, socio s, doador d, doacao r
+where i.cnpj = s.cnpj
+  and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
+  and d.cpf = r.nr_cpf_cnpj_doador
+group by r.sg_uf;
+
+-- rever porque não há lançamento para presidente
+select r.cd_cargo, sum(vr_receita) from igrejas i, socio s, doador d, doacao r
+where i.cnpj = s.cnpj
+  and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
+  and d.cpf = r.nr_cpf_cnpj_doador
+group by r.cd_cargo;
+
+-- quem são os maiores doadores
+select * from (
+select r.nr_cpf_cnpj_doador, sum(vr_receita) from igrejas i, socio s, doador d, doacao r
+where i.cnpj = s.cnpj
+  and s.cnpj_cpf_do_socio = d.cpf_obf and s.nome_socio = d.nome
+  and d.cpf = r.nr_cpf_cnpj_doador
+group by r.nr_cpf_cnpj_doador) as maior_doador
+order by 2 desc;
+
+select * from doador where cpf in ('36343242368','09152539334')
+
+select * from empresa where cnpj in (
+select cnpj from socio
+ where cnpj_cpf_do_socio = '***432423**' and nome_socio = 'JOSE ALVES CAVALCANTE');
+
+-- ele doou para ele mesmo!
+-- cargo deputado estadual
+select distinct nr_cpf_candidato from doacao r
+ where r.nr_cpf_cnpj_doador = '36343242368';
+
+select * from doacao r
+ where r.nr_cpf_cnpj_doador = '36343242368';
