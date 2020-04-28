@@ -35,11 +35,11 @@ class Candidato(Pessoa):
         return reverse('candidatos_detalhe', kwargs={'pk': self.pk})
 
     def nome_publico(self):
-        try: return self.nomepublico_set.all()[0].nome
+        try: return self.nomepublico_set.filter(num_acessos__gte=0)[0].nome
         except: return None
 
     def ultima_candidatura(self):
-        try: return self.candidatura_set.all()[0]
+        try: return self.candidatura_set.order_by('-ano')[0]
         except: return None
 
     def __str__(self):
@@ -112,7 +112,7 @@ class Candidatura(models.Model):
         ordering = ['-ano']
 
     candidato = models.ForeignKey(Candidato)
-    ano = models.PositiveSmallIntegerField()
+    ano = models.PositiveSmallIntegerField(db_index=True)
     cargo = models.PositiveSmallIntegerField(choices=choices.CARGO_CHOICES)
     agreg_regiao = models.PositiveSmallIntegerField(choices=choices.LOCAL_CHOICES)
     regiao = models.CharField(max_length=10)
@@ -182,9 +182,10 @@ class Votacao(models.Model):
     media = models.BigIntegerField(u'Média de Votos', null=True)
 
     class Meta:
-        verbose_name = 'Votação'
-        verbose_name_plural = 'Votações'
-        unique_together = (('ano', 'cargo', 'turno', 'partido'), )
+        verbose_name = 'Votação por Partido'
+        verbose_name_plural = 'Votações por Partido'
+        unique_together = (('ano', 'cargo', 'UE', 'turno', 'partido', ), )
+        ordering = ('ano',)
 
     def __str__(self):
         return u'%s (%s) %s (%s turno)' % (self.ano, self.cargo, self.partido, self.turno)

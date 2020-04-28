@@ -73,16 +73,25 @@ Detalhes:
 
 ## Instalação:
 
-git pull
+```
+mkdir ~/politlab
+cd ~/politlab
+virtualenv bin
+git clone https://github.com/josircg/politlab.git
+cd politlab 
 pip install -r requirements.txt
+wget <<base de dados>>
+gunzip < politlab.gz | mysql -u root -p politlab 
+python manage.py runserver
+```
 
 
 ## Próximos passos
 
 - Melhorar performance na busca por nome
-- Implementar Totais de Votacoes por Estado e Municipio por Partido
-- Calcular totais por municipio para calcular a Capiladidade e Curralidade
+- Implementar Totais de Votacoes por Estado e Municipio e por Partido
+- Calcular totais por municipio para calcular a Capilaridade e Curralidade
 - Agregar os dados PEP (Pessoas Politicamente Expostas) 
 - Agregar os dados dos filiados e associar às doações de campanha
-- Agregar dados das bancadas BBB
+- Agregar registro de quem faz parte das bancadas BBB
 

@@ -1,7 +1,7 @@
 # Django
-django<1.12
+django<2
 requests
-django-admin-tools==0.8.1
+django-admin-tools
 
 # Deploy
 pymysql
@@ -13,3 +13,6 @@ pillow==4.1.1
 
 # BI
 pandas
+
+# Brasilian Elections
+electionsBR

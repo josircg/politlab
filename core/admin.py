@@ -70,12 +70,32 @@ class CandidaturaInline(admin.TabularInline):
     fields = ('ano', 'cargo', 'regiao', 'numero', 'partido', 'resultado' )
     readonly_fields = fields
 
+
+class FilterPartido(admin.SimpleListFilter):
+    title = 'Partido'
+    parameter_name = 'partido'
+
+    def lookups(self, request, model_admin):
+        query = Partido.objects.all().values_list('sigla', flat=True)
+        partidos = []
+        for p in query:
+            partidos.append((p, p))
+        return tuple(partidos)
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        candidaturas = Candidatura.objects.filter(partido__sigla__exact=value)
+        if value != None:
+            return queryset.filter(candidatura__in=candidaturas)
+
+        return queryset
+
 @admin.register(Candidato)
 class CandidatoAdmin(ReadOnlyAdmin):
     list_display = ('nome', 'cpf', 'sexo', )
     fields = ('nome', 'cpf', 'sexo')
     search_fields = ('nome', 'cpf', )
-    list_filter = ('sexo', )
+    list_filter = ('sexo', FilterPartido,)
     inlines = (CandidaturaInline, )
 
 @admin.register(Candidatura)
@@ -103,8 +123,8 @@ class NomePublicoAdmin(ReadOnlyAdmin):
 
 @admin.register(Votacao)
 class VotacaoAdmin(ReadOnlyAdmin):
-    list_display = ('ano', 'cargo', 'turno', 'partido', 'num_votos', 'media')
-    search_fields = ('partido__sigla', )
+    list_display = ('ano', 'cargo', 'turno', 'partido', 'UE', 'num_votos', 'media')
+    search_fields = ('partido__sigla', 'partido__numero', 'UE__sigla',)
     list_filter = ('ano', 'cargo', )
 
 @admin.register(UE)
