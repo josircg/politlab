@@ -24,7 +24,7 @@ SELECT
 FROM igrejas;
 
 update igrejas_temp as T
-   set nome = (select distinct nome from igrejas where cnpj = t.cnpj);
+   set nome = (select distinct nome from igrejas where cnpj = t.cnpj)
 
 DROP TABLE igrejas;
 
@@ -51,13 +51,13 @@ select * FROM
 order by 3 desc;
 
 select * from igrejas where cnpj in (
-select cnpj from socio where cnpj_cpf_do_socio = '***828616**');
+select cnpj from socio where cnpj_cpf_do_socio = '***828616**')
 
 -- existe alguma empresa em que ele não é sócio?
 -- não. ele é sócio de todas as empresas
 select * from igrejas
 where nome = 'IGREJA DO EVANGELHO QUADRANGULAR'
-  and cnpj not in (select cnpj from socio where cnpj_cpf_do_socio = '***828616**');
+  and cnpj not in (select cnpj from socio where cnpj_cpf_do_socio = '***828616**')
 
 drop table doacao;
 
@@ -97,12 +97,9 @@ create table doador_cnpj(
     cnpj varchar(14)
 );
 
-create table origem_receita
-(
-    cd_origem_receita bigint,
-    ds_origem_receita text
-);
-
+create table origem_receita as (
+select distinct cd_origem_receita, ds_origem_receita from doacao2018 d
+ where cd_origem_receita is not null );
 
 create index idx_doador_cnpj on doador_cnpj (cpf, cnpj);
 
@@ -111,11 +108,11 @@ alter table doador owner to farmi;
 alter table doador_cnpj owner to farmi;
 
 select distinct cd_origem_receita, ds_origem_receita from doacao2018
- where cd_origem_receita is not null;
+ where cd_origem_receita is not null
 
 select * from doacao2018
  where length(nr_cpf_cnpj_doador) = 11
-   and trim(nm_doador) <> nm_doador_rfb;
+   and trim(nm_doador) <> nm_doador_rfb
 
 update doacao2018 set nr_cpf_cnpj_doador = null where nr_cpf_cnpj_doador = '-1';
 update doacao2018 set sg_uf_doador = null where sg_uf_doador = '#NULO#';
@@ -193,7 +190,61 @@ where i.cnpj = s.cnpj
   and d.cpf = r.nr_cpf_cnpj_doador
 group by r.cd_cargo;
 
--- quem são os maiores doadores
+select d.cd_origem_receita, o.ds_origem_receita, sum(vr_receita)
+  from doacao d, origem_receita o
+ where d.cd_origem_receita = o.cd_origem_receita
+ group by d.cd_origem_receita, o.ds_origem_receita
+ order by 3 desc;
+
+select * from origem_receita
+
+-- total de doações por pessoas físicas: 1.988.728.964,58
+-- incluíndo o próprio candidato
+select sum(vr_receita) from doacao
+ where cd_origem_receita in ('10010200','10010100','10020500','10010400')
+
+-- agrupado pelo cargo
+select cd_cargo, sum(vr_receita) from doacao
+ where cd_origem_receita in ('10010200','10010100','10020500','10010400')
+group by cd_cargo
+order by 2 desc;
+
+select cd_fonte_receita, ds_fonte_receita, sum(vr_doacao) from doacao2018
+group by cd_fonte_receita, ds_fonte_receita
+
+select cd_fonte_receita, cd_origem_receita, ds_origem_receita, sum(vr_doacao) from doacao2018
+ where cd_fonte_receita = 1
+   and cd_origem_receita not in ('10010200','10010100','10020500','10010400')
+group by cd_fonte_receita, cd_origem_receita, ds_origem_receita;
+
+-- partidos que mais receberam dinheiro do fundo partidário
+select sg_partido, cd_origem_receita, sum(vr_doacao) from doacao2018 r
+where cd_fonte_receita = 2
+group by sg_partido
+order by 2 desc;
+
+-- http://www.tse.jus.br/eleicoes/eleicoes-2018/prestacao-de-contas-1/fundo-especial-de-financiamento-de-campanha-fefc
+-- entender porque o valor está diferente do valor informado no site do TSE
+-- exemplo do MDB: na base está 1.095.467.260
+-- no site está 230.974.290,08
+select cd_origem_receita, ds_origem_receita, sum(vr_doacao) from doacao2018 r
+ where sg_partido = 'MDB' and cd_fonte_receita = 2
+  group by cd_origem_receita, ds_origem_receita;
+
+
+-- somente para presidente
+select * from doador d, doacao r
+where d.cpf = r.nr_cpf_cnpj_doador
+  and r.cd_cargo = 1;
+
+-- partido que mais recebeu doações de PF para presidente
+select sg_partido, sum(vr_receita) from doador d, doacao r
+where d.cpf = r.nr_cpf_cnpj_doador
+  and r.cd_cargo = 1
+group by sg_partido
+order by 2 desc;
+
+-- quem são os maiores doadores ligados à igrejas
 select * from (
 select r.nr_cpf_cnpj_doador, sum(vr_receita) from igrejas i, socio s, doador d, doacao r
 where i.cnpj = s.cnpj
@@ -211,7 +262,8 @@ select cnpj from socio
 -- ele doou para ele mesmo!
 -- cargo deputado estadual
 select distinct nr_cpf_candidato from doacao r
- where r.nr_cpf_cnpj_doador = '36343242368';
+ where r.nr_cpf_cnpj_doador = '36343242368'
 
 select * from doacao r
- where r.nr_cpf_cnpj_doador = '36343242368';
+ where r.nr_cpf_cnpj_doador = '36343242368'
+
