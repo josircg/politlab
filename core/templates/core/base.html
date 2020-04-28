@@ -49,6 +49,17 @@
 
     <!-- Begin page content -->
     <main role="main" class="container">
+      {% block messages %}
+          {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{% firstof message.tags 'info' %} {% if message.tags == 'error' %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+              {% endfor %}
+          {% endif %}
+      {% endblock %}
+
+
       {% block main %}
       {% endblock %}
     </main>
