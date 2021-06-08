@@ -9,7 +9,7 @@ mysqlclient
 gunicorn
 
 # Images
-pillow==8.1.1
+pillow==8.2.0
 
 # BI
 pandas
